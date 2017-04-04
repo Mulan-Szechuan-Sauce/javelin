@@ -1,0 +1,7 @@
+*.tex
+obj/
+\#*\#
+.\#*
+a.out
+TAGS
+_minted*
