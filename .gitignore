@@ -1,7 +1,10 @@
-*.tex
+**/TAGS
+
+# Binaries
+bin/
 obj/
+a.out
+
+# Temp Files
 \#*\#
 .\#*
-a.out
-TAGS
-_minted*
