@@ -1,5 +1,5 @@
 * Tasks
-** TODO Convert string iterators to char iterators
+** Convert string iterators to char iterators
    I wrote a custom string iterator, as a bit of a hack... ideally, it should just iterate the string as a char, and cast to a string if it _really_ needs to!
 ** len() function
    ... we totally forgot it :P
@@ -11,86 +11,6 @@
    https://docs.python.org/2/tutorial/datastructures.html
 ** [#C] Variable length arguments
    I'll put this on the back burner for now.. but to implement things like print() properly, we should support variable length arguments.
-** DONE Convert range() iterators to int iterating for loops
-   CLOSED: [2017-04-03 Mon 18:52]
-   Just the style:
-   #+begin_src c++
-     for (int i = 0; i < 2; i++);
-   #+end_src
-** DONE Function signature type implications
-   CLOSED: [2017-04-02 Sun 22:17]
-   Start off with implying the return types, then look into the args.
-   
-   Function return types are now implicit!
-   
-   Args should have a simalar method of implication - their first use context should imply their type.
-   It may be much more difficult though, since some statement can be ambiguously typed such as:
-
-   #+begin_src python
-     def add(a, b):
-         return a + b
-   #+end_src
-   
-   if (a.type = b.type) {
-     gucci
-   } else {
-     no bueno
-   }
-   
-   if (a.typeMatches(b)) {
-   }
-
-   This should compile:
-   #+begin_src python
-     def add(a : int, b, c):
-         #return (b + (3 + c -> int) -> int)
-         return a + b + c
-
-     def add(a, b : int):
-         return a + b
-   #+end_src
- 
-   Is the above snipped looking for integers, or strings, or lists? Maybe we can use some C++ templating magic to sort it out, but for now we should force users to imply somehow.
-** DONE Unary integer negation
-** DONE String iterator
-   One hickup is that by default, the std::string iterator will iterate chars,
-   while in Python, we expect it to iterate substrings.
-** DONE Modulus & Bitshift operators
-   CLOSED: [2017-03-20 Mon 22:32]
-** DONE List iterator
-   CLOSED: [2017-03-20 Mon 22:32]
-** DONE Implement casting functions
-   str() and int()
-** DONE Variable length print() arguments
-   They can be ints or strings!
-** DONE Figure out a way to avoid typedeffing function calls
-   One approach is to generate code via definitions, instead of via the AST statements directly.
-** DONE [#A] Built-in types
-   print() and exit() are the two critical functions we will need.
-   In the future, you should also implement some of the very standard I/O library functions.
-** DONE Support return statements
-   This should probably be done once you figure out functions. With inner functions, how will you tell which function you are returning from? Which type should you expect to return? My current idea is to have a function declaration stack.
-
-   A function declaration stack would allow us to easily check the expected return type of a function, so we can throw an exception if a return statement is the wrong type, or if there is no return statement in a function that should have one.
-
-   Note, however, that I don't think C++ is strict in regards to return statements, so you might not have to worry about the presense of return statements.
-
-   Bonus: If you feel up to it, you could even imply return types (like ML) if no function return type is specified!
-** DONE Figure out root functions vs lambdas
-   Root functions are gucci now! Inner functions should be easily translated into lambdas at this point (using scope->depth());
-** DONE Split up root function declaration
-** DONE AST it up
-* Concerns
-** DONE Lambda function variable references
-   Currently, we are using reference capturs.... but what if we do something like this:
-   #+begin_src python
-     foo = 3
-     def hi():
-         foo = 4
-         def bar():
-             foo = 4
-   #+end_src
-   Should those all refer to the same variable? Should we _not_ use reference captures, but use "global" to signify what to capture?
 * Bugs
 ** Division is broken
    e.g.
@@ -111,42 +31,3 @@
    #+end_src
    Assigning a variable twice creates duplicate two definitions
 ** Variable redeclarations are broken (inside new scopes)
-** DONE Recursion breaks implicit function types
-   CLOSED: [2017-04-02 Sun 13:06]
-   e.g.:
-   #+begin_src python
-     def add(a : int, b : int):
-         if b <= 0:
-             return a
-         return add(a + 1, b - 1)
-   #+end_src
-   
-   Oddly enough, if you place the recursive step at the top, it will work properly.
-   
-   To fix this, we will have to store a pointer to the current function definition or some other magic like that.
-** DONE Strings don't always cast to std::string
-   Sometimes, they will just stay as const char*s, which cause issues when calling methods on them!
-** DONE Single quote strings are broken
-   CLOSED: [2017-03-19 Sun 23:26]
-** DONE Recursive functions are broken
-** DONE Code gen indentation is broken for closing parens
-** DONE Inner functions break when they have a blank line after
-   CLOSED: [2017-02-28 Tue]
-   #+begin_src python
-     def hi() -> int:
-         def boop() -> str:
-             barble = 74
-
-         ts = 3
-     hi = 4
-   #+end_src
-** DONE Buggy Comment Indentation
-   CLOSED: [2017-02-12 Sun 20:19]
-   If a comment has an unexpected indentation (as below), the first parser will return an indentation error.
-   E.g.:
-   #+begin_src python
-     if 1:
-         print('hi')
-         # This comment is fine
-       # This comment will break the parser, since it is only 2 spaces
-   #+end_src
