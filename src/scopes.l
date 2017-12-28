@@ -18,9 +18,18 @@ Delimiter   (":"|";"|"."|","|"="|"'"|"\""|"("|")"|"{"|"}"|"["|"]"|"+="|"-="|"*="
 
 %%
 
-{BlankLines}
+{BlankLines} {
+    for (; *yytext != '\0'; yytext++) {
+        if (*yytext == '\n') {
+            yylineno++;
+        }
+    }
+}
 
-{Newline} return EOL;
+{Newline} {
+    yylineno++;
+    return EOL;
+}
 " "       return ' ';
 "\t"      return '\t';
 

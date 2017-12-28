@@ -9,6 +9,8 @@
 %{
     /* REGEX Variable Initialization */
 %}
+
+LineNoInd   ^[0-9]+:
 Newline     [\n]|[\r\n]|[\r]
 Integer     [0-9]+
 String      \"(\\.|[^\"])*\"|\'(\\.|[^\'])*\'
@@ -18,7 +20,18 @@ Delimiter   (":"|";"|"."|","|"="|"'"|"\""|"("|")"|"{"|"}"|"["|"]"|"+="|"-="|"*="
 Keyword     ("and"|"not"|"while"|"elif"|"or"|"else"|"if"|"pass"|"break"|"print"|"class"|"in"|"continue"|"is"|"return"|"def"|"for"|"int"|"float"|"str"|"list"|"dict")
 %%
 
-{Newline}     {yylineno++; return EOL;}
+{LineNoInd} {
+    // Used to sync the line numbers when passing through Python-With-Braces
+    int lineno = atoi(yytext);
+    /*
+     * A zero line-no is reserved for brace-only lines, which won't exist
+     * in the original source.
+     */
+    if (lineno > 0) {
+        yylineno = lineno;
+    }
+}
+{Newline}     {return EOL;}
 {Integer}     {yylval.int_val = new NInteger(atoi(yytext)); return INTEGER;}
 {String}      {yylval.str_val = new NString(yytext); return STRING;}
 "("           return '(';
@@ -73,7 +86,7 @@ Keyword     ("and"|"not"|"while"|"elif"|"or"|"else"|"if"|"pass"|"break"|"print"|
 "\t"|" "
 
 . {
-    fprintf(stderr, "Invalid token: '%s' on line %d\n", yytext, yylineno + 1);
+    fprintf(stderr, "Invalid token: '%s' on line %d\n", yytext, yylineno);
     yyterminate();
 }
 

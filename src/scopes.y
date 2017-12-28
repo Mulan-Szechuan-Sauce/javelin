@@ -41,7 +41,7 @@ input:
     if (current_indent > 0) {
         while (current_indent > 0) {
             current_indent--;
-            printf("\n}");
+            printf("\n0:}");
         }
     }
     printf("\n");
@@ -64,7 +64,8 @@ tabindent:
 ;
 
 line: TOK {
-  printf("%s ", $1->c_str());
+  extern int yylineno;
+  printf("%d:%s ", yylineno, $1->c_str());
 }
 | line TOK {
   printf("%s ", $2->c_str());
@@ -116,7 +117,7 @@ void handle_indent(char type, int multiplicity) {
         }
 
         for (; delta < 0; delta++) {
-            printf("\n}");
+            printf("\n0:}");
         }
         for (; delta > 0; delta--) {
             printf("{");
